@@ -55,9 +55,12 @@ async function update_To_Do(ori_to_do,new_to_do){
     if (length<=0){
         return([{'return':'update failed,the to_do item dose not exist.'}])
     }else{
-        let reback = To_Dos.findOneAndUpdate(ori_to_do,{$set:new_to_do}).then((result)=>{
-            //console.log({'return':"update success",'id':result.id});
-            return([Object.assign({'return':"update success",'id':result.id},result._doc)]);
+        let reback = To_Dos.findOneAndUpdate(ori_to_do,{$set:new_to_do}).then(async (result)=>{
+            let after = await To_Dos.find({'_id':result.id})
+            result._doc['id']=result._doc._id;
+            after[0]._doc['id']=after[0]._doc._id
+            //console.log({'return':"update success"},result._doc,after[0]._doc);
+            return([{'return':"update success","before":[result._doc],"after":[after[0]._doc]}]);
         },() => {
             return([{'return':'update failed'}]);
         });
@@ -102,7 +105,7 @@ type Mutation {
     #新增
     create_new_To_Do(to_do:input_To_Do):[reback]
     #修改
-    update_To_Do(ori_to_do:input_To_Do,new_to_do:input_To_Do):[reback]
+    update_To_Do(ori_to_do:input_To_Do,new_to_do:input_To_Do):[update_reback]
     #删除
     delete_To_Do(to_do:input_To_Do):[reback]
 }
@@ -126,6 +129,12 @@ type reback {
     time: String
     #详细内容
     detail: String
+}
+type update_reback {
+    #返回信息
+    return: String
+    before: [To_Dos]
+    after: [To_Dos]
 }
 `;
 
