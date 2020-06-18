@@ -1,4 +1,3 @@
-
 const mongoose = require('mongoose');
 function mongocon() {
     mongoose.set('useFindAndModify', false);
